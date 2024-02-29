@@ -1,33 +1,17 @@
-// import { PrismaClient } from '@prisma/client'
-import express from "express"
-
+import express from "express";
+import { Register } from "./api/auth";
+import cors from "cors";
 
 const app = express();
-app.use(express.json())
 
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => { console.log("Server is running on port ", PORT) })
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// const prisma = new PrismaClient()
+// Routes
+app.post("/register", Register);
 
-// async function main() {
-//     // ... you will write your Prisma Client queries here
-//     await prisma.user.create({
-//         data: {
-//             name: "Kartik shettar",
-//             email: "example@example.com",
-//             password: "password@123"
-//         }
-//     })
-//     const allUsers = await prisma.user.findMany();
-//     console.dir(allUsers, { depth: null })
-// }
-
-// main()
-//     .catch(async (e) => {
-//         console.error(e)
-//         process.exit(1)
-//     })
-//     .finally(async () => {
-//         await prisma.$disconnect()
-//     })
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log("Server is running on port ", PORT);
+});

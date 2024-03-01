@@ -6,7 +6,6 @@ import { Request, Response } from 'express';
 import { config as configDotenv } from 'dotenv';
 configDotenv()
 
-console.log(process.env.JWT_SECRET_KEY, "KEY")
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default_secret_key';
 

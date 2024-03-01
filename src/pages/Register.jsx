@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Toast from "../components/Toast/Toast";
 import toast from "react-hot-toast";
 import { useState } from "react";
+import { GoogleLogin, useGoogleOneTapLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 export default function Register() {
   const {
@@ -51,6 +53,14 @@ export default function Register() {
   // Watch the 'password' and 'confirmPassword' fields for changes
   const password = watch("password", "");
   const confirmPassword = watch("confirmPassword", "");
+  useGoogleOneTapLogin({
+    onSuccess: (credentialResponse) => {
+      console.log(credentialResponse);
+    },
+    onError: () => {
+      console.log("Login Failed");
+    },
+  });
 
   return (
     <>
@@ -215,14 +225,18 @@ export default function Register() {
               or
             </div>
           </div>
-          <button className="-2 w-full bg-slate-50 flex items-center justify-center rounded-md border px-4 py-1 outline-none ring-gray-400 ring-offset-2 transition focus:ring-2 hover:border-transparent hover:bg-gray-100 ">
-            <img
-              className="mr-2 h-5"
-              src="https://static.cdnlogo.com/logos/g/35/google-icon.svg"
-              alt="Google"
-            />{" "}
-            Google
-          </button>
+          <div className="-2 w-full flex items-center justify-center">
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                const decodedToken = jwtDecode(credentialResponse?.credential);
+                console.log(decodedToken);
+              }}
+              onError={() => {
+                console.log("Login Failed");
+              }}
+            />
+          </div>
+
           <p className="mt-10 text-center text-sm text-gray-500">
             Already have a account?{" "}
             <Link

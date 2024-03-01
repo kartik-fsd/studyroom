@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import SignIn from "../pages/SignIn";
-import Register from "../pages/Auth";
+import Register from "../pages/Register";
+
 function Auth() {
   return (
     <Routes>

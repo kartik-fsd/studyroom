@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Toast from "../components/Toast/Toast";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { GoogleLogin, useGoogleOneTapLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+import GoogleAuth from "../components/GoogleAuth";
 
 export default function Register() {
   const {
@@ -12,9 +11,7 @@ export default function Register() {
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm({
-    mode: "onBlur",
-  });
+  } = useForm();
   const [showToast, setShowToast] = useState();
   const navigate = useNavigate();
 
@@ -53,14 +50,6 @@ export default function Register() {
   // Watch the 'password' and 'confirmPassword' fields for changes
   const password = watch("password", "");
   const confirmPassword = watch("confirmPassword", "");
-  useGoogleOneTapLogin({
-    onSuccess: (credentialResponse) => {
-      console.log(credentialResponse);
-    },
-    onError: () => {
-      console.log("Login Failed");
-    },
-  });
 
   return (
     <>
@@ -225,18 +214,8 @@ export default function Register() {
               or
             </div>
           </div>
-          <div className="-2 w-full flex items-center justify-center">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const decodedToken = jwtDecode(credentialResponse?.credential);
-                console.log(decodedToken);
-              }}
-              onError={() => {
-                console.log("Login Failed");
-              }}
-            />
-          </div>
-
+          {/* Sign up with google  */}{" "}
+          <GoogleAuth navigate={navigate} setShowToast={setShowToast} />
           <p className="mt-10 text-center text-sm text-gray-500">
             Already have a account?{" "}
             <Link

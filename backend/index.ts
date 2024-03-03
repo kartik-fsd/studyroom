@@ -1,7 +1,8 @@
 import express from "express";
-import { Register } from "./api/auth";
 import cors from "cors";
 import { Login } from "./api/Login";
+import { RegisterForm } from "./api/register";
+import { GoogleRegister } from "./api/Oauth";
 
 const app = express();
 
@@ -10,8 +11,9 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.post("/register", Register);
-app.get("/signIn", Login);
+app.post("/signIn", Login);
+app.post("/register", RegisterForm)
+app.post("/gauth", GoogleRegister)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

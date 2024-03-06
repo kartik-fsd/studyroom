@@ -1,42 +1,38 @@
-import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { config as configDotenv } from 'dotenv';
-
-interface AuthTokenPayload {
-    loginUser: { id?: string };
-}
-
+import { Request, Response } from 'express';
 const prisma = new PrismaClient();
-configDotenv();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default_secret_key';
 
-export const Login = async (req: Request, res: Response): Promise<void | Response<any, Record<string, any>>> => {
-    try {
-        const { email, password } = req.body;
+export const GoogleLogin = async (req: Request, res: Response) => {
+    const { googleId } = req.body;
 
-        // Check if user exists
-        const loginUser = await prisma.user.findUnique({
-            where: { email: email },
+    try {
+        const user = await prisma.user.findUnique({
+            where: { googleId },
         });
 
-        if (!loginUser) {
-            return res.status(400).json({ success: false, error: 'This email is not registered' });
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'User not found' });
         }
 
-        const checkPassword = await bcrypt.compare(password, loginUser?.password || '');
+        // User found, generate JWT token
+        const tokenData = { userData: { id: user.id?.toString() } };
+        const authToken = jwt.sign(tokenData, JWT_SECRET_KEY);
 
-        if (!checkPassword) {
-            return res.status(400).json({ success: false, error: 'Please try to login with correct credentials' });
-        }
+        // Save the token as a cookie
+        res.cookie('authToken', authToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+            // Other optional configurations...
+        });
 
-        const tokenData: AuthTokenPayload = { loginUser: { id: loginUser.id?.toString() } };
-        const authToken: string = jwt.sign(tokenData, JWT_SECRET_KEY);
-
-        return res.json({ success: true, authToken });
+        return res.status(200).json({ success: true, authToken });
     } catch (error: any) {
         console.error(error.message);
-        return res.status(500).json({ success: false, error: 'Internal Server Error' });
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    } finally {
+        await prisma.$disconnect();
     }
 };

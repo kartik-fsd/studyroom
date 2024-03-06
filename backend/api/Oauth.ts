@@ -13,7 +13,6 @@ const prisma = new PrismaClient();
 
 export const GoogleRegister = async (req: Request, res: Response) => {
     const { googleId, email, name } = req.body;
-
     try {
         // Check if user already exists
         const existingUser = await prisma.user.findUnique({
@@ -26,15 +25,21 @@ export const GoogleRegister = async (req: Request, res: Response) => {
             // Create new user
             const userData = await prisma.user.create({
                 data: {
-                    googleId,
-                    name,
-                    email,
+                    googleId: googleId,
+                    name: name,
+                    email: email,
                 },
             });
-
             // Generate and return JWT token
             const tokenData = { userData: { id: userData.id?.toString() } };
             const authToken: string = jwt.sign(tokenData, JWT_SECRET_KEY);
+
+            res.cookie('authToken', authToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 1000 * 60 * 60 * 24 * 7, // One week in milliseconds
+                sameSite: 'none'
+            });
             return res.status(200).json({ success: true, authToken });
         } else {
             res.status(200).json({ success: true }); // User already exists

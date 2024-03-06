@@ -1,19 +1,21 @@
 import express from "express";
 import cors from "cors";
-import { Login } from "./api/Login";
-import { RegisterForm } from "./api/register";
 import { GoogleRegister } from "./api/Oauth";
+import router from "./api/logout";
+import { GoogleLogin } from "./api/login";
+import cookieParser from "cookie-parser"
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
-app.post("/signIn", Login);
-app.post("/register", RegisterForm)
 app.post("/gauth", GoogleRegister)
+app.post("/glogin", GoogleLogin)
+app.use("/user", router)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
